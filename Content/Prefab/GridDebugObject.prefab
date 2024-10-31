@@ -6,7 +6,6 @@
 	{
 		"ID": "a9d833b04186e9d3a9c3d5a9b0987148",
 		"TypeName": "FlaxEngine.EmptyActor",
-		"ParentID": "00000000000000000000000000000000",
 		"Name": "GridDebugObject"
 	},
 	{
@@ -14,27 +13,8 @@
 		"TypeName": "GridSystem.GridDebugObject",
 		"ParentID": "a9d833b04186e9d3a9c3d5a9b0987148",
 		"V": {
-			"TextRender": "fa8f29d24f15b53f4c3008a2373851a4"
-		}
-	},
-	{
-		"ID": "8b6a1bf04d8fe9008c036e94cd1324b7",
-		"TypeName": "FlaxEngine.SpriteRender",
-		"ParentID": "a9d833b04186e9d3a9c3d5a9b0987148",
-		"Name": "SpriteRender",
-		"Transform": {
-			"Orientation": {
-				"X": -0.7071068286895752,
-				"Y": 0.0,
-				"Z": 0.0,
-				"W": 0.7071068286895752
-			}
-		},
-		"Sprite": {},
-		"Image": "0a98f33a4121908023bf8e86e5badfc0",
-		"Material": "6542187d40386b3768d0818d98dbd63a",
-		"FaceCamera": false,
-		"DrawModes": 2
+	"TextRender": "fa8f29d24f15b53f4c3008a2373851a4"
+}
 	},
 	{
 		"ID": "fa8f29d24f15b53f4c3008a2373851a4",
@@ -74,6 +54,31 @@
 				"X": 100.0,
 				"Y": 100.0
 			}
+		}
+	},
+	{
+		"ID": "614fdddb4a3d221210c4508168cf9f1c",
+		"TypeName": "FlaxEngine.StaticModel",
+		"ParentID": "a9d833b04186e9d3a9c3d5a9b0987148",
+		"Name": "StaticModel",
+		"Transform": {
+			"Orientation": {
+				"X": -0.7071068286895752,
+				"Y": 0.0,
+				"Z": 0.0,
+				"W": 0.7071068286895752
+			}
+		},
+		"Model": "54a1ff4a42af9f018234f7b39b1366b3",
+		"Buffer": {
+			"Entries": [
+				{
+					"Material": "88930b644fbd357e93ea3d91fa141dbe",
+					"ShadowsMode": 0,
+					"Visible": true,
+					"ReceiveDecals": true
+				}
+			]
 		}
 	}
 ]

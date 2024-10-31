@@ -61,12 +61,16 @@ public class GridSystem<TGridObject>
 		return z >= 0 && z < Dimension.Y;
 	}
 
+	/// <summary>
+	/// Creates debug objects for the grid system
+	/// </summary>
+	/// <remarks>Can only be called on OnStart</remarks>
+	/// <param name="prefab"></param>
 	public void CreateDebugObjects(Prefab prefab)
 	{
 		Actor debugActor = Level.FindActor("GridDebugObjects");
 		if (debugActor == null)
 		{
-
 			debugActor = new EmptyActor();
 			debugActor.Name = "GridDebugObjects";
 			Level.SpawnActor(debugActor);

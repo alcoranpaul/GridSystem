@@ -19,6 +19,12 @@ public class GridObject<T> : IGridObject where T : GridObject<T>
 		GridSystem = gridSystem;
 		GridPosition = gridPosition;
 	}
+
+	public override string ToString()
+	{
+		return $"{GridPosition}";
+	}
+
 }
 
 /// <summary>

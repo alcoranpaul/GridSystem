@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Projects\\Game Dev\\Flax\\Plugins\\DunGen\\Plugins\\GridSystem\\Source\\GridSystem.csproj": {}
+    "E:\\Projects\\Game Dev\\Flax\\TowerOfBabelTD\\Plugins\\GridSystem\\Source\\GridSystem.csproj": {}
   },
   "projects": {
-    "E:\\Projects\\Game Dev\\Flax\\Plugins\\DunGen\\Plugins\\GridSystem\\Source\\GridSystem.csproj": {
+    "E:\\Projects\\Game Dev\\Flax\\TowerOfBabelTD\\Plugins\\GridSystem\\Source\\GridSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Projects\\Game Dev\\Flax\\Plugins\\DunGen\\Plugins\\GridSystem\\Source\\GridSystem.csproj",
+        "projectUniqueName": "E:\\Projects\\Game Dev\\Flax\\TowerOfBabelTD\\Plugins\\GridSystem\\Source\\GridSystem.csproj",
         "projectName": "GridSystem.CSharp",
-        "projectPath": "E:\\Projects\\Game Dev\\Flax\\Plugins\\DunGen\\Plugins\\GridSystem\\Source\\GridSystem.csproj",
+        "projectPath": "E:\\Projects\\Game Dev\\Flax\\TowerOfBabelTD\\Plugins\\GridSystem\\Source\\GridSystem.csproj",
         "packagesPath": "C:\\Users\\paulr\\.nuget\\packages\\",
-        "outputPath": "E:\\Projects\\Game Dev\\Flax\\Plugins\\DunGen\\Plugins\\GridSystem\\Source\\obj\\",
+        "outputPath": "E:\\Projects\\Game Dev\\Flax\\TowerOfBabelTD\\Plugins\\GridSystem\\Source\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\paulr\\AppData\\Roaming\\NuGet\\NuGet.Config",
