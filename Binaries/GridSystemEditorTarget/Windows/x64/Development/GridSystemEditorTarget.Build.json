@@ -1,0 +1,22 @@
+{
+  "Name": "GridSystemEditorTarget",
+  "Platform": "Windows",
+  "Architecture": "x64",
+  "Configuration": "Development",
+  "BinaryModules": [
+    {
+      "Name": "GridSystem",
+      "ManagedPath": "$(ProjectPath)/Binaries/GridSystemEditorTarget/Windows/x64/Development/GridSystem.CSharp.dll"
+    },
+    {
+      "Name": "GridSystemEditor",
+      "ManagedPath": "$(ProjectPath)/Binaries/GridSystemEditorTarget/Windows/x64/Development/GridSystemEditor.CSharp.dll"
+    }
+  ],
+  "References": [
+    {
+      "ProjectPath": "$(EnginePath)/Flax.flaxproj",
+      "Path": "$(EnginePath)/Binaries/Editor/Win64/Development/FlaxEditor.Build.json"
+    }
+  ]
+}

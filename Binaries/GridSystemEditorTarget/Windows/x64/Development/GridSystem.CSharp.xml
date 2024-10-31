@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GridSystem.CSharp</name>
+    </assembly>
+    <members>
+        <member name="T:GridSystem.GridDebugObject">
+            <summary>
+            GridDebugObject Script.
+            </summary>
+        </member>
+        <member name="T:GridSystem.GridObject`1">
+            <summary>
+            Represents an object that exists within a grid system. This generic class binds the object to a specific grid system and assigns it a position within that grid.
+            <para>It is designed to work with any type that inherits from <see cref="T:GridSystem.GridObject`1"/>, allowing for flexible and reusable grid-based systems.</para>
+            </summary>
+            <typeparam name="T">The type of the grid object, constrained to inherit from <see cref="T:GridSystem.GridObject`1"/>.</typeparam>
+        </member>
+        <member name="T:GridSystem.IGridObject">
+            <summary>
+            Defines the properties required for an object to be part of a grid system. Each grid object must have a position within the grid.
+            </summary>
+        </member>
+        <member name="T:GridSystem.GridSystem`1">
+            <summary>
+            GridSystem Script.
+            </summary>
+        </member>
+        <member name="M:GridSystem.GridSystem`1.ToGridSize(System.Int32)">
+            <summary>
+            Converts the world size to a grid size. 
+            Since even numbers doesnt cover the whole grid node, we add 1 to the world size to make it odd.
+            </summary>
+            <param name="worldSize"></param>
+            <returns></returns>
+        </member>
+        <member name="M:GridSystem.GridSystem`1.GetWorldPosition(FlaxEngine.Vector3)">
+            <summary>
+            Converts a world position to a grid position
+            </summary>
+            <remarks>Automatically converts into GridPosition</remarks>
+            
+            <param name="worldPosition"></param>
+            <returns></returns>
+        </member>
+        <member name="T:GridSystem.GSystem">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:GridSystem.GSystem.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:GridSystem.GSystem.Initialize">
+            <inheritdoc />
+        </member>
+        <member name="M:GridSystem.GSystem.Deinitialize">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>
