@@ -53,3 +53,6 @@ _ReSharper*/
 
 # Ignore Nuget packages folder
 packages/
+/Source/Properties
+/Source/obj
+/Source/obj
