@@ -7,6 +7,7 @@ namespace GridSystem;
 /// <summary>
 /// GridDebugObject Script.
 /// </summary>
+[Category("GridSystem")]
 public class GridDebugObject : Script
 {
 	public TextRender TextRender;

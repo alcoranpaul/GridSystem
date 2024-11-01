@@ -1,0 +1,43 @@
+{
+	"ID": "5d130e98454629b4d93aa78bc4c2f34a",
+	"TypeName": "FlaxEngine.Prefab",
+	"EngineBuild": 6605,
+	"Data": [
+	{
+		"ID": "1f8a036d46413e608b34429f6f3ac680",
+		"TypeName": "FlaxEngine.EmptyActor",
+		"Name": "GridVisualizeObject"
+	},
+	{
+		"ID": "803dd8224b83444664f64ba41e08c1c7",
+		"TypeName": "FlaxEngine.StaticModel",
+		"ParentID": "1f8a036d46413e608b34429f6f3ac680",
+		"Name": "StaticModel",
+		"Transform": {
+			"Translation": {
+				"X": 0.0,
+				"Y": 20.0,
+				"Z": 0.0
+			},
+			"Orientation": {
+				"X": -0.7071068286895752,
+				"Y": 0.0,
+				"Z": 0.0,
+				"W": 0.7071068286895752
+			}
+		},
+		"Model": "54a1ff4a42af9f018234f7b39b1366b3",
+		"SortOrder": 1,
+		"Buffer": {
+			"Entries": [
+				{
+					"Material": "68ca829b4572b79d013c62b170524f0f",
+					"ShadowsMode": 0,
+					"Visible": true,
+					"ReceiveDecals": true
+				}
+			]
+		}
+	}
+]
+}

@@ -5,20 +5,29 @@ using FlaxEngine;
 namespace GridSystem;
 
 /// <summary>
-/// GridSystem Script.
+/// Represents a grid system that holds objects of type <typeparamref name="TGridObject"/>.
 /// </summary>
-public class GridSystem<TGridObject>
+/// <typeparam name="TGridObject">The type of objects that the grid will hold.</typeparam>
+public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 {
-
 	public Vector2 Dimension { get; private set; }
 	public float UnitScale { get; private set; }
 	public Vector3 Origin { get; private set; }  // Store the origin
 
 	private const float METERS_TO_CM = 100f; // Conversion factor from centimeters to meters
+
 	public TGridObject[,] GridObjects { get; private set; }
+	public SystemVisual<TGridObject> Visual { get; private set; }
+
 	public int[] DirectionX;
 	public int[] DirectionY;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="GridSystem{TGridObject}"/> class.
+	/// </summary>
+	/// <param name="dimension">The dimensions of the grid.</param>
+	/// <param name="unitScale">The scale of each grid unit.</param>
+	/// <param name="createGridObject">A function to create grid objects.</param>
 	public GridSystem(Vector2 dimension, float unitScale, Func<GridSystem<TGridObject>, GridPosition, TGridObject> createGridObject)
 	{
 		Dimension = dimension;
@@ -27,89 +36,122 @@ public class GridSystem<TGridObject>
 		// Convert Origin from centimeters to meters
 		Origin = Vector3.Zero * METERS_TO_CM;
 
+		// Initialize the grid objects array and dictionary
 		GridObjects = new TGridObject[(int)Dimension.X, (int)Dimension.Y];
 
+
+		// Populate the grid with objects
 		for (int x = 0; x < Dimension.X; x++)
 		{
 			for (int z = 0; z < Dimension.Y; z++)
 			{
 				GridPosition pos = new GridPosition(x, z);
 				GridObjects[x, z] = createGridObject(this, pos);
+
 			}
 		}
+
+		Visual = new SystemVisual<TGridObject>(this);
+
+		// Initialize direction arrays for grid navigation
 		DirectionX = new int[] { 0, 1, 0, -1 };
 		DirectionY = new int[] { 1, 0, -1, 0 };
 	}
 
+	/// <summary>
+	///  Iterates through the grid and performs the specified action on each grid object.
+	/// </summary>
+	/// <param name="action">The action to perform on each grid object.</param>
+	/// <param name="msg">The message to return if the action is null.</param>
+	/// <returns></returns>
+	public bool IterateThroughGrid(Action<TGridObject> action)
+	{
+		if (action == null)
+		{
+			Debug.LogWarning("Action is null. Please provide a valid action.");
+			return false;
+		}
+
+		// Iterate through each grid position and perform the action
+		for (int x = 0; x < Dimension.X; x++)
+		{
+			for (int z = 0; z < Dimension.Y; z++)
+			{
+				action(GridObjects[x, z]);
+			}
+		}
+		return true;
+	}
+
+
+	/// <summary>
+	/// Checks if the specified grid position is valid.
+	/// </summary>
+	/// <param name="position">The grid position to check.</param>
+	/// <returns>True if the position is valid, otherwise false.</returns>
 	public bool IsPositionValid(GridPosition position)
 	{
 		return IsPositionValid(position.X, position.Z);
 	}
 
+	/// <summary>
+	/// Checks if the specified grid coordinates are valid.
+	/// </summary>
+	/// <param name="x">The x-coordinate to check.</param>
+	/// <param name="z">The z-coordinate to check.</param>
+	/// <returns>True if the coordinates are valid, otherwise false.</returns>
 	public bool IsPositionValid(int x, int z)
 	{
 		return IsPositionXValid(x) && IsPositionZValid(z);
 	}
 
+	/// <summary>
+	/// Checks if the specified x-coordinate is valid.
+	/// </summary>
+	/// <param name="x">The x-coordinate to check.</param>
+	/// <returns>True if the x-coordinate is valid, otherwise false.</returns>
 	public bool IsPositionXValid(int x)
 	{
 		return x >= 0 && x < Dimension.X;
 	}
 
+	/// <summary>
+	/// Checks if the specified z-coordinate is valid.
+	/// </summary>
+	/// <param name="z">The z-coordinate to check.</param>
+	/// <returns>True if the z-coordinate is valid, otherwise false.</returns>
 	public bool IsPositionZValid(int z)
 	{
 		return z >= 0 && z < Dimension.Y;
 	}
 
 	/// <summary>
-	/// Creates debug objects for the grid system
+	/// Gets the grid object at the specified grid position.
 	/// </summary>
-	/// <remarks>Can only be called on OnStart</remarks>
-	/// <param name="prefab"></param>
-	public void CreateDebugObjects(Prefab prefab)
+	/// <param name="position">The grid position.</param>
+	/// <returns>The grid object at the specified position.</returns>
+	public TGridObject GetGridObject(GridPosition position)
 	{
-		Actor debugActor = Level.FindActor("GridDebugObjects");
-		if (debugActor == null)
-		{
-			debugActor = new EmptyActor();
-			debugActor.Name = "GridDebugObjects";
-			Level.SpawnActor(debugActor);
-		}
-
-		for (int x = 0; x < Dimension.X; x++)
-		{
-			for (int z = 0; z < Dimension.Y; z++)
-			{
-				GridPosition gridPos = new GridPosition(x, z);
-				Actor debugObj = PrefabManager.SpawnPrefab(prefab, GetWorldPosition(gridPos), Quaternion.Identity);
-				debugObj.Parent = debugActor;
-				if (!debugObj.TryGetScript<GridDebugObject>(out var gridDebugObject)) return;
-
-
-				gridDebugObject.SetGridObject(GetGridObject(gridPos));
-				debugObj.Name = $"GridObject_{gridPos}";
-
-				// BoundingSphere sphere = new BoundingSphere(GetWorldPosition(gridPos), 5f); // Convert radius to meters
-				// DebugDraw.DrawSphere(sphere, Color.Red, 20);
-
-			}
-		}
-		DrawGridBoundingBox();
+		return GridObjects[position.X, position.Z];
 	}
 
+
 	/// <summary>
-	/// Converts the world size to a grid size. 
-	/// Since even numbers doesnt cover the whole grid node, we add 1 to the world size to make it odd.
+	/// Converts the world size to a grid size.
+	/// Since even numbers don't cover the whole grid node, we add 1 to the world size to make it odd.
 	/// </summary>
-	/// <param name="worldSize"></param>
-	/// <returns></returns>
+	/// <param name="worldSize">The world size to convert.</param>
+	/// <returns>The converted grid size.</returns>
 	public int ToGridSize(int worldSize)
 	{
 		if (worldSize % 2 != 0) return worldSize; // If the world size is odd, return the world size
 		else return worldSize + 1; // If the world size is even, return the world size + 1
 	}
 
-
+	/// <summary>
+	/// Gets the bounding box of the grid.
+	/// </summary>
+	/// <returns>The bounding box of the grid.</returns>
 	public BoundingBox GetBoundingBox()
 	{
 		BoundingBox gridBounds = GetBoundingBox(out Vector3 minWorldPos, out Vector3 maxWorldPos);
@@ -122,85 +164,58 @@ public class GridSystem<TGridObject>
 		return gridBounds;
 	}
 
-	private BoundingBox GetBoundingBox(out Vector3 minWorldPos, out Vector3 maxWorldPos, bool isDebug = false, float yOffset = 0)
+	/// <summary>
+	/// Converts a world position to a grid position.
+	/// </summary>
+	/// <param name="worldPosition">The world position to convert.</param>
+	/// <returns>The corresponding grid position.</returns>
+	public GridPosition GetGridPosition(Vector3 worldPosition)
 	{
-		// Define grid boundaries in grid coordinates
-		GridPosition min = (GridObjects[0, 0] as IGridObject).GridPosition;
-		GridPosition max = (GridObjects[(int)Dimension.X - 1, (int)Dimension.X - 1] as IGridObject).GridPosition;
-
-		// Get the world positions with the center offset
-		minWorldPos = GetWorldPosition(min);
-		maxWorldPos = GetWorldPosition(max);
-
-		// Add the y offset
-		if (isDebug)
-		{
-			minWorldPos.Y += yOffset;
-			maxWorldPos.Y += yOffset;
-		}
-
-
-		return new BoundingBox(minWorldPos, maxWorldPos);
-	}
-
-	private void DrawGridBoundingBox()
-	{
-		// Create a bounding box from the world positions
-		BoundingBox gridBounds = GetBoundingBox(out Vector3 minWorldPos, out Vector3 maxWorldPos);
-		float halfUnitScale = UnitScale / 2;
-		minWorldPos.X -= halfUnitScale;
-		minWorldPos.Z -= halfUnitScale;
-
-		maxWorldPos.X += halfUnitScale;
-		maxWorldPos.Z += halfUnitScale;
-		DebugDraw.DrawSphere(new BoundingSphere(minWorldPos, 5f), Color.Green, 20);
-		DebugDraw.DrawSphere(new BoundingSphere(maxWorldPos, 5f), Color.Green, 20);
-
-
-		gridBounds.Minimum.X -= halfUnitScale;
-		gridBounds.Minimum.Z -= halfUnitScale;
-
-		gridBounds.Maximum.X += halfUnitScale;
-		gridBounds.Maximum.Z += halfUnitScale;
-		// Draw the bounding box
-		DebugDraw.DrawWireBox(gridBounds, Color.Beige, 10.0f);
-	}
-
-	public TGridObject GetGridObject(GridPosition position)
-	{
-		return GridObjects[position.X, position.Z];
-	}
-
-	private Vector3 GetOffset()
-	{
-		// Calculate the grid size (offset by 1 to account for zero-based indexing)
-		float gridSizeX = Dimension.X - 1;
-		float gridSizeZ = Dimension.Y - 1;
-
-		const float CENTER_OFFSET = 2f; // TODO: Move to a constant of the class
-
-		// Calculate the offset for centering
-		float offsetX = gridSizeX / CENTER_OFFSET * UnitScale;
-		float offsetZ = gridSizeZ / CENTER_OFFSET * UnitScale;
-
-		return new Vector3(offsetX, 0, offsetZ);
+		return GetGridPosition(worldPosition.X, worldPosition.Z);
 	}
 
 	/// <summary>
-	/// Converts a world position to a grid position
+	/// Converts world coordinates to a grid position.
+	/// </summary>
+	/// <param name="x">The x-coordinate in the world.</param>
+	/// <param name="z">The z-coordinate in the world.</param>
+	/// <returns>The corresponding grid position.</returns>
+	public GridPosition GetGridPosition(float x, float z)
+	{
+		// Get the center offset
+		Vector3 offset = GetOffset();
+
+		// Translate the world position back to grid coordinates
+		int gridX = (int)((x - Origin.X + offset.X) / UnitScale);
+		int gridZ = (int)((z - Origin.Z + offset.Z) / UnitScale);
+
+		// Check if the calculated grid position is valid
+		if (!IsPositionValid(gridX, gridZ)) return null;
+
+		return new GridPosition(gridX, gridZ);
+	}
+
+	/// <summary>
+	/// Converts a world position to a grid position.
 	/// </summary>
 	/// <remarks>Automatically converts into GridPosition</remarks>
-	/// 
-	/// <param name="worldPosition"></param>
-	/// <returns></returns>
+	/// <param name="worldPosition">The world position to convert.</param>
+	/// <returns>The corresponding world position.</returns>
 	public Vector3 GetWorldPosition(Vector3 worldPosition)
 	{
 		GridPosition gridPos = GetGridPosition(worldPosition);
 		return GetWorldPosition(gridPos);
 	}
 
+	/// <summary>
+	/// Converts a grid position to a world position.
+	/// </summary>
+	/// <param name="pos">The grid position to convert.</param>
+	/// <returns>The corresponding world position.</returns>
 	public Vector3 GetWorldPosition(GridPosition pos)
 	{
+		if (pos == null) return Vector3.Zero;
+
 		// Get the center offset
 		Vector3 offset = GetOffset();
 
@@ -212,69 +227,126 @@ public class GridSystem<TGridObject>
 		return Origin + new Vector3(scaledX - offset.X, 0, scaledZ - offset.Z);
 	}
 
-
-
-	public GridPosition GetGridPosition(Vector3 worldPosition)
+	/// <summary>
+	/// Gets the bounding box of the grid.
+	/// </summary>
+	/// <param name="minWorldPos">The minimum world position of the bounding box.</param>
+	/// <param name="maxWorldPos">The maximum world position of the bounding box.</param>
+	/// <param name="isDebug">Indicates whether this is for debugging purposes.</param>
+	/// <param name="yOffset">The y-offset to apply.</param>
+	/// <returns>The bounding box of the grid.</returns>
+	public BoundingBox GetBoundingBox(out Vector3 minWorldPos, out Vector3 maxWorldPos, bool isDebug = false, float yOffset = 0)
 	{
-		return GetGridPosition(worldPosition.X, worldPosition.Z);
+		// Define grid boundaries in grid coordinates
+		GridPosition min = (GridObjects[0, 0] as IGridObject).GridPosition;
+		GridPosition max = (GridObjects[(int)Dimension.X - 1, (int)Dimension.X - 1] as IGridObject).GridPosition;
+
+		// Get the world positions with the center offset
+		minWorldPos = GetWorldPosition(min);
+		maxWorldPos = GetWorldPosition(max);
+
+		// Add the y offset if debugging
+		if (isDebug)
+		{
+			minWorldPos.Y += yOffset;
+			maxWorldPos.Y += yOffset;
+		}
+
+		return new BoundingBox(minWorldPos, maxWorldPos);
 	}
 
-	public GridPosition GetGridPosition(float x, float z)
+
+	/// <summary>
+	/// Gets the offset for centering the grid.
+	/// </summary>
+	/// <returns>The offset for centering the grid.</returns>
+	private Vector3 GetOffset()
 	{
+		// Calculate the grid size (offset by 1 to account for zero-based indexing)
+		float gridSizeX = Dimension.X - 1;
+		float gridSizeZ = Dimension.Y - 1;
 
-		// Get the center offset
-		Vector3 offset = GetOffset();
+		float centerOffset = 2f;
 
-		// Translate the world position back to grid coordinates
-		int gridX = (int)((x - Origin.X + offset.X) / UnitScale);
-		int gridZ = (int)((z - Origin.Z + offset.Z) / UnitScale);
+		// Calculate the offset for centering
+		float offsetX = gridSizeX / centerOffset * UnitScale;
+		float offsetZ = gridSizeZ / centerOffset * UnitScale;
 
-		if (!IsPositionValid(gridX, gridZ)) return null;
-
-		return new GridPosition(gridX, gridZ);
+		return new Vector3(offsetX, 0, offsetZ);
 	}
 
 
 }
 
-
-
+/// <summary>
+/// Represents a position in the grid system.
+/// </summary>
 public class GridPosition
 {
+	/// <summary>
+	/// The x-coordinate of the grid position.
+	/// </summary>
 	public int X;
+	/// <summary>
+	/// The z-coordinate of the grid position.
+	/// </summary>
 	public int Z;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="GridPosition"/> class.
+	/// </summary>
+	/// <param name="x">The x-coordinate of the grid position.</param>
+	/// <param name="z">The z-coordinate of the grid position.</param>
 	public GridPosition(int x, int z)
 	{
 		X = x;
 		Z = z;
 	}
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="GridPosition"/> class from a world position.
+	/// </summary>
+	/// <param name="worldPosition">The world position.</param>
 	public GridPosition(Vector3 worldPosition)
 	{
 		X = (int)worldPosition.X;
 		Z = (int)worldPosition.Z;
 	}
 
+	/// <summary>
+	/// Adds two grid positions.
+	/// </summary>
+	/// <param name="a">The first grid position.</param>
+	/// <param name="b">The second grid position.</param>
+	/// <returns>The sum of the two grid positions.</returns>
 	public static GridPosition operator +(GridPosition a, GridPosition b)
 	{
 		return new GridPosition(a.X + b.X, a.Z + b.Z);
 	}
 
+	/// <summary>
+	/// Subtracts one grid position from another.
+	/// </summary>
+	/// <param name="a">The first grid position.</param>
+	/// <param name="b">The second grid position.</param>
+	/// <returns>The difference between the two grid positions.</returns>
 	public static GridPosition operator -(GridPosition a, GridPosition b)
 	{
 		return new GridPosition(a.X - b.X, a.Z - b.Z);
 	}
 
+	/// <summary>
+	/// Converts the grid position to a Vector3.
+	/// </summary>
+	/// <returns>The Vector3 representation of the grid position.</returns>
 	public Vector3 ToVector3()
 	{
 		return new Vector3(X, 0, Z);
 	}
 
-
+	// <inheritdoc/>
 	public override string ToString()
 	{
 		return $"({X}, {Z})";
 	}
-
 }

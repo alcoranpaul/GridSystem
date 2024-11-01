@@ -11,13 +11,35 @@ namespace GridSystem;
 /// <typeparam name="T">The type of the grid object, constrained to inherit from <see cref="GridObject{T}"/>.</typeparam>
 public class GridObject<T> : IGridObject where T : GridObject<T>
 {
+	/// <summary>
+	/// The grid system to which the grid object belongs.
+	/// </summary>
 	public GridSystem<T> GridSystem { get; private set; }
+	// <inheritdoc/>
 	public GridPosition GridPosition { get; private set; }
+	// <inheritdoc/>
+	public bool IsOccupied { get; private set; }
 
 	public GridObject(GridSystem<T> gridSystem, GridPosition gridPosition)
 	{
 		GridSystem = gridSystem;
 		GridPosition = gridPosition;
+	}
+
+	/// <summary>
+	/// Marks the grid object as occupied.
+	/// </summary>
+	public void Occupy()
+	{
+		IsOccupied = true;
+	}
+
+	/// <summary>
+	/// Marks the grid object as unoccupied.
+	/// </summary>
+	public void Vacate()
+	{
+		IsOccupied = false;
 	}
 
 	public override string ToString()
@@ -32,5 +54,12 @@ public class GridObject<T> : IGridObject where T : GridObject<T>
 /// </summary>
 public interface IGridObject
 {
+	/// <summary>
+	/// The position of the grid object within the grid system.
+	/// </summary>
 	public GridPosition GridPosition { get; }
+	/// <summary>
+	/// Indicates whether the grid object is currently occupied.
+	/// </summary>
+	public bool IsOccupied { get; }
 }
