@@ -14,13 +14,13 @@ namespace GridSystem
 			_description = new PluginDescription
 			{
 				Name = "GridSystem",
-				Category = "Other",
-				Author = "D1g1Talino",
-				AuthorUrl = null,
-				HomepageUrl = null,
+				Category = "System",
+				Author = "alcoranpaul",
+				AuthorUrl = "https://github.com/alcoranpaul",
+				HomepageUrl = "https://github.com/alcoranpaul",
 				RepositoryUrl = "https://github.com/FlaxEngine/GridSystem",
-				Description = "This is an example plugin project.",
-				Version = new Version(),
+				Description = "2-D grid system for Flax Engine",
+				Version = new Version(1, 0),
 				IsAlpha = false,
 				IsBeta = false,
 			};
