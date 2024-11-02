@@ -68,7 +68,6 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 	///  Iterates through the grid and performs the specified action on each grid object.
 	/// </summary>
 	/// <param name="action">The action to perform on each grid object.</param>
-	/// <param name="msg">The message to return if the action is null.</param>
 	/// <returns></returns>
 	public bool IterateThroughGrid(Action<TGridObject> action)
 	{
