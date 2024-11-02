@@ -20,6 +20,12 @@ public class GridObject<T> : IGridObject where T : GridObject<T>
 	// <inheritdoc/>
 	public bool IsOccupied { get; private set; }
 
+	public event EventHandler<OnOccupiedEventArgs> OnOccupiedChanged;
+	public class OnOccupiedEventArgs : EventArgs
+	{
+		public bool Flag;
+	}
+
 	public GridObject(GridSystem<T> gridSystem, GridPosition gridPosition)
 	{
 		GridSystem = gridSystem;
@@ -32,6 +38,7 @@ public class GridObject<T> : IGridObject where T : GridObject<T>
 	public void Occupy()
 	{
 		IsOccupied = true;
+		OnOccupiedChanged?.Invoke(this, new OnOccupiedEventArgs { Flag = IsOccupied });
 	}
 
 	/// <summary>
@@ -40,6 +47,7 @@ public class GridObject<T> : IGridObject where T : GridObject<T>
 	public void Vacate()
 	{
 		IsOccupied = false;
+		OnOccupiedChanged?.Invoke(this, new OnOccupiedEventArgs { Flag = IsOccupied });
 	}
 
 	public override string ToString()

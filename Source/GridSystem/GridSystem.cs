@@ -132,6 +132,7 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 	/// <returns>The grid object at the specified position.</returns>
 	public TGridObject GetGridObject(GridPosition position)
 	{
+		if (!IsPositionValid(position)) return null;
 		return GridObjects[position.X, position.Z];
 	}
 
@@ -253,6 +254,51 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 		}
 
 		return new BoundingBox(minWorldPos, maxWorldPos);
+	}
+
+	/// <summary>
+	/// Toggles the grid object's occupancy at the specified grid position.
+	/// </summary>
+	/// <param name="gridPosition"></param>
+	/// <param name="flag"></param>
+	public void ChangeGridObjectOccupancy(GridPosition gridPosition, bool flag)
+	{
+		if (!IsPositionValid(gridPosition))
+		{
+			Debug.LogWarning("Invalid grid position.");
+			return;
+		}
+
+		TGridObject gridObject = GetGridObject(gridPosition);
+		if (flag)
+			gridObject.Occupy();
+		else
+			gridObject.Vacate();
+
+	}
+
+	/// <summary>
+	/// Toggles the grid object's occupancy at the specified grid position.
+	/// </summary>
+	/// <param name="worldPosition"></param>
+	/// <param name="flag"></param>
+	public void ChangeGridObjectOccupancy(Vector3 worldPosition, bool flag)
+	{
+		GridPosition gridPosition = GetGridPosition(worldPosition);
+		if (gridPosition == null)
+		{
+			Debug.LogWarning("Invalid grid position.");
+			return;
+		}
+		ChangeGridObjectOccupancy(gridPosition, flag);
+	}
+
+	/// <summary>
+	/// Disposes of the grid system.
+	/// </summary>
+	public void OnDisable()
+	{
+		Visual.OnDisable();
 	}
 
 

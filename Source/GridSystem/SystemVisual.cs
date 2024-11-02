@@ -25,6 +25,8 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 		this.gridSystem = gridSystem;
 	}
 
+
+
 	/// <summary>
 	/// Shows the visual representations of the grid.
 	/// </summary>
@@ -58,6 +60,9 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 		{
 			if (visualDict.TryGetValue(gridPosition, out var visual))
 			{
+				TGridObject gridObject = gridSystem.GetGridObject(gridPosition);
+				if (gridObject == null && gridObject.IsOccupied) continue;
+
 				visual.IsActive = true;
 			}
 		}
@@ -135,9 +140,34 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 				visualDict[gridobject.GridPosition] = actor; // Store the visual actor in the dictionary
 				actor.IsActive = false;
 			}
+			gridobject.OnOccupiedChanged += OnGridObjectOccupiedChanged;
 		};
 		gridSystem.IterateThroughGrid(action);
 	}
+
+	/// <summary>
+	/// Disables the visualization of the grid.
+	/// </summary>
+	public void OnDisable()
+	{
+		// Action to visualize each occupied grid object
+		Action<TGridObject> action = (gridobject) =>
+		{
+			gridobject.OnOccupiedChanged -= OnGridObjectOccupiedChanged;
+		};
+		gridSystem.IterateThroughGrid(action);
+	}
+
+	private void OnGridObjectOccupiedChanged(object sender, GridObject<TGridObject>.OnOccupiedEventArgs e)
+	{
+		if (sender is not TGridObject gridObject) return;
+		Debug.Log($"Grid object at {gridObject.GridPosition} is {(e.Flag ? "occupied" : "vacated")}");
+		if (visualDict.TryGetValue(gridObject.GridPosition, out var visual))
+		{
+			visual.IsActive = !e.Flag;
+		}
+	}
+
 
 	/// <summary>
 	/// Draws the bounding box of the grid for debugging purposes.
