@@ -15,6 +15,7 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 
 	// Dictionary to map grid positions to their visual actors
 	private Dictionary<GridPosition, Actor> visualDict;
+	private bool isVisible;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="SystemVisual{TGridObject}"/> class.
@@ -43,6 +44,7 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 			TGridObject gridObject = gridSystem.GetGridObject(visual.Key);
 			if (!ActivateVisual(visual.Value, gridObject)) continue;
 		}
+		isVisible = true;
 	}
 
 	/// <summary>
@@ -66,6 +68,7 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 				if (!ActivateVisual(visual, gridObject)) continue;
 			}
 		}
+		isVisible = true;
 	}
 
 	/// <summary>
@@ -97,6 +100,7 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 		{
 			visual.Value.IsActive = false;
 		}
+		isVisible = false;
 	}
 
 	/// <summary>
@@ -104,14 +108,17 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 	/// </summary>
 	/// <remarks>Can only be called on OnStart</remarks>
 	/// <param name="prefab">The prefab to use for the debug objects.</param>
-	public void CreateDebugObjects(Prefab prefab)
+	/// <param name="yOffset"></param>
+	public void CreateDebugObjects(Prefab prefab, float yOffset = 0)
 	{
 		// Find or create the parent actor for debug objects
 		Actor debugActor = Level.FindActor("GridDebugObjects");
+
 		if (debugActor == null)
 		{
 			debugActor = new EmptyActor();
 			debugActor.Name = "GridDebugObjects";
+			debugActor.Position = new Vector3(0, yOffset, 0);
 			Level.SpawnActor(debugActor);
 		}
 
@@ -134,7 +141,8 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 	/// Visualizes the grid using the specified prefab.
 	/// </summary>
 	/// <param name="visualizePrefab">The prefab to use for visualization.</param>
-	public void VisualizeGrid(Prefab visualizePrefab)
+	/// <param name="yOffset"></param>
+	public void VisualizeGrid(Prefab visualizePrefab, float yOffset = 0)
 	{
 		visualDict = new Dictionary<GridPosition, Actor>();
 		if (!VisualNullChecker(visualizePrefab, out Actor gridVisualizations))
@@ -177,7 +185,8 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 		if (sender is not TGridObject gridObject) return;
 		if (visualDict.TryGetValue(gridObject.GridPosition, out var visual))
 		{
-			visual.IsActive = !e.Flag;
+			if (isVisible)
+				visual.IsActive = !e.Flag;
 		}
 	}
 
