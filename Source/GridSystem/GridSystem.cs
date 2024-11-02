@@ -138,7 +138,7 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 	/// <returns>The grid object at the specified position.</returns>
 	public TGridObject GetGridObject(GridPosition position)
 	{
-		if (!IsPositionValid(position)) return null;
+		if (position == null || !IsPositionValid(position)) return null;
 		return GridObjects[position.X, position.Z];
 	}
 
