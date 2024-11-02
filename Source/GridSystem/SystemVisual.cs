@@ -40,7 +40,8 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 
 		foreach (KeyValuePair<GridPosition, Actor> visual in visualDict)
 		{
-			visual.Value.IsActive = true;
+			TGridObject gridObject = gridSystem.GetGridObject(visual.Key);
+			if (!ActivateVisual(visual.Value, gridObject)) continue;
 		}
 	}
 
@@ -61,11 +62,24 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 			if (visualDict.TryGetValue(gridPosition, out var visual))
 			{
 				TGridObject gridObject = gridSystem.GetGridObject(gridPosition);
-				if (gridObject == null && gridObject.IsOccupied) continue;
 
-				visual.IsActive = true;
+				if (!ActivateVisual(visual, gridObject)) continue;
 			}
 		}
+	}
+
+	/// <summary>
+	/// Activates the visual representation of the grid object.
+	/// </summary>
+	/// <param name="visual"></param>
+	/// <param name="gridObject"></param>
+	/// <returns></returns>
+	private static bool ActivateVisual(Actor visual, TGridObject gridObject)
+	{
+		if (gridObject == null || gridObject.IsOccupied) return false;
+
+		visual.IsActive = true;
+		return true;
 	}
 
 	/// <summary>
@@ -161,7 +175,6 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 	private void OnGridObjectOccupiedChanged(object sender, GridObject<TGridObject>.OnOccupiedEventArgs e)
 	{
 		if (sender is not TGridObject gridObject) return;
-		Debug.Log($"Grid object at {gridObject.GridPosition} is {(e.Flag ? "occupied" : "vacated")}");
 		if (visualDict.TryGetValue(gridObject.GridPosition, out var visual))
 		{
 			visual.IsActive = !e.Flag;
