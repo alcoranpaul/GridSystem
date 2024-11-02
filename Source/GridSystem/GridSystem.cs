@@ -19,6 +19,12 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 	public TGridObject[,] GridObjects { get; private set; }
 	public SystemVisual<TGridObject> Visual { get; private set; }
 
+	public event EventHandler<OnObjectOccupancyChangedEventArgs> OnObjectOccupancyChanged;
+	public class OnObjectOccupancyChangedEventArgs : EventArgs
+	{
+		public TGridObject Object;
+	}
+
 	public int[] DirectionX;
 	public int[] DirectionY;
 
@@ -274,6 +280,8 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 			gridObject.Occupy();
 		else
 			gridObject.Vacate();
+
+		OnObjectOccupancyChanged?.Invoke(this, new OnObjectOccupancyChangedEventArgs { Object = gridObject });
 
 	}
 
