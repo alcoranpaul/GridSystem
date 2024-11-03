@@ -126,7 +126,11 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 		Action<TGridObject> action = (gridobject) =>
 		{
 			GridPosition gridPos = gridobject.GridPosition;
-			Actor debugObj = PrefabManager.SpawnPrefab(prefab, gridSystem.GetWorldPosition(gridPos), Quaternion.Identity);
+			if (!gridSystem.GetWorldPosition(gridPos, out Vector3 worldPos))
+			{
+				Debug.LogError("Failed to get world position");
+			}
+			Actor debugObj = PrefabManager.SpawnPrefab(prefab, worldPos, Quaternion.Identity);
 			debugObj.Parent = debugActor;
 			if (!debugObj.TryGetScript<GridDebugObject>(out var gridDebugObject)) return;
 
@@ -156,7 +160,10 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 		{
 			if (!gridobject.IsOccupied)
 			{
-				Vector3 worldPos = gridSystem.GetWorldPosition(gridobject.GridPosition);
+				if (!gridSystem.GetWorldPosition(gridobject.GridPosition, out Vector3 worldPos))
+				{
+					Debug.LogError("Failed to get world position");
+				}
 				Actor actor = PrefabManager.SpawnPrefab(visualizePrefab, worldPos);
 				actor.Parent = gridVisualizations;
 				visualDict[gridobject.GridPosition] = actor; // Store the visual actor in the dictionary

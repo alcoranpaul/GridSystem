@@ -206,21 +206,33 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 	/// </summary>
 	/// <remarks>Automatically converts into GridPosition</remarks>
 	/// <param name="worldPosition">The world position to convert.</param>
+	/// <param name="convertedWorldPosition"></param>
 	/// <returns>The corresponding world position.</returns>
-	public Vector3 GetWorldPosition(Vector3 worldPosition)
+	public bool GetWorldPosition(Vector3 worldPosition, out Vector3 convertedWorldPosition)
 	{
 		GridPosition gridPos = GetGridPosition(worldPosition);
-		return GetWorldPosition(gridPos);
+		if (gridPos == null || !GetWorldPosition(gridPos, out convertedWorldPosition))
+		{
+			convertedWorldPosition = Vector3.Zero;
+			return false;
+		}
+
+		return true;
 	}
 
 	/// <summary>
 	/// Converts a grid position to a world position.
 	/// </summary>
 	/// <param name="pos">The grid position to convert.</param>
+	/// <param name="worldPosition"></param>
 	/// <returns>The corresponding world position.</returns>
-	public Vector3 GetWorldPosition(GridPosition pos)
+	public bool GetWorldPosition(GridPosition pos, out Vector3 worldPosition)
 	{
-		if (pos == null) return Vector3.Zero;
+		if (pos == null)
+		{
+			worldPosition = Vector3.Zero;
+			return false;
+		}
 
 		// Get the center offset
 		Vector3 offset = GetOffset();
@@ -230,7 +242,8 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 		float scaledZ = pos.Z * UnitScale + (UnitScale / 2); // Add half the unit scale
 
 		// Translate the grid position, centering the grid on the origin
-		return Origin + new Vector3(scaledX - offset.X, 0, scaledZ - offset.Z);
+		worldPosition = Origin + new Vector3(scaledX - offset.X, 0, scaledZ - offset.Z);
+		return true;
 	}
 
 	/// <summary>
@@ -248,8 +261,13 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 		GridPosition max = (GridObjects[(int)Dimension.X - 1, (int)Dimension.X - 1] as IGridObject).GridPosition;
 
 		// Get the world positions with the center offset
-		minWorldPos = GetWorldPosition(min);
-		maxWorldPos = GetWorldPosition(max);
+		if (!GetWorldPosition(min, out minWorldPos) || !GetWorldPosition(max, out maxWorldPos))
+		{
+			Debug.LogError("Failed to get world position");
+			maxWorldPos = Vector3.Zero;
+			return new BoundingBox(Vector3.Zero, Vector3.Zero);
+		}
+
 
 		// Add the y offset if debugging
 		if (isDebug)
