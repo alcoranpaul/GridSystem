@@ -319,12 +319,105 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 	}
 
 	/// <summary>
+	/// Returns a list of <see cref="GridPosition"/> representing the outer nodes (most edges) based on <paramref name="Width"/> and <paramref name="Length"/>
+	/// </summary>
+	/// <param name="basePosition">The base position around which the outer nodes are calculated.</param>
+	/// <param name="Width">The width of the grid area.</param>
+	/// <param name="Length">The length of the grid area.</param>
+	/// <returns>A list of <see cref="GridPosition"/> representing the outer nodes.</returns>
+	public List<GridPosition> GetOuterNodes(GridPosition basePosition, int Width, int Length)
+	{
+		// Initialize the list to hold the positions of the outer nodes
+		List<GridPosition> positions = new List<GridPosition>();
+
+		// Convert the width and length to grid sizes
+		int gridWidth = ToGridSize(Width);
+		int gridLength = ToGridSize(Length);
+
+		// Calculate the offsets to center the grid around the base position
+		int widthOffset = gridWidth / 2;
+		int lengthOffset = gridLength / 2;
+
+		if (Dimension.X - gridWidth < 0) gridWidth = (int)Dimension.X;
+		if (Dimension.Y - gridLength < 0) gridLength = (int)Dimension.Y;
+		// Iterate through the grid dimensions
+		for (int i = 0; i < gridWidth; i++)
+		{
+			for (int j = 0; j < gridLength; j++)
+			{
+				// Include only the outer nodes (first and last rows and columns)
+				if (i == 0 || i == gridWidth - 1 || j == 0 || j == gridLength - 1)
+				{
+					int x = basePosition.X - widthOffset + i;
+					int z = basePosition.Z - lengthOffset + j;
+					if (x < 0) x = 0;
+					else if (x >= Dimension.X) x = (int)Dimension.X - 1;
+					if (z < 0) z = 0;
+					else if (z >= Dimension.Y) z = (int)Dimension.Y - 1;
+
+					// Calculate the grid position based on the base position and offsets
+					GridPosition pos = new GridPosition(x, z);
+
+					// Check if the position is valid within the grid system
+					if (!IsPositionValid(pos)) continue;
+
+					// Add the valid outer node position to the list
+					positions.Add(pos);
+				}
+			}
+		}
+
+		// Return the list of outer node positions
+		return positions;
+	}
+
+	/// <summary>
+	/// Returns a list of <see cref="GridPosition"/> representing the inner nodes excluding the outer nodes based on <paramref name="Width"/> and <paramref name="Length"/>
+	/// </summary>
+	/// <param name="basePosition"></param>
+	/// <param name="Width"></param>
+	/// <param name="Length"></param>
+	/// <returns></returns>
+	public List<GridPosition> GetInnerNodes(GridPosition basePosition, int Width, int Length)
+	{
+		List<GridPosition> positions = new List<GridPosition>();
+		int gridWidth = ToGridSize(Width);
+		int gridLength = ToGridSize(Length);
+
+		int widthOffset = gridWidth / 2;
+		int lengthOffset = gridLength / 2;
+
+		if (Dimension.X - gridWidth < 0) gridWidth = (int)Dimension.X;
+		if (Dimension.Y - gridLength < 0) gridLength = (int)Dimension.Y;
+		for (int i = 1; i < gridWidth - 1; i++)
+		{
+			for (int j = 1; j < gridLength - 1; j++)
+			{
+				int x = basePosition.X - widthOffset + i;
+				int z = basePosition.Z - lengthOffset + j;
+				if (x < 0) x = 0;
+				else if (x >= Dimension.X) x = (int)Dimension.X - 1;
+				if (z < 0) z = 0;
+				else if (z >= Dimension.Y) z = (int)Dimension.Y - 1;
+
+				GridPosition pos = new GridPosition(basePosition.X - widthOffset + i, basePosition.Z - lengthOffset + j);
+				positions.Add(pos);
+			}
+		}
+
+		return positions;
+	}
+
+
+	/// <summary>
 	/// Disposes of the grid system.
 	/// </summary>
 	public void OnDisable()
 	{
 		Visual.OnDisable();
 	}
+
+
 
 
 	/// <summary>
