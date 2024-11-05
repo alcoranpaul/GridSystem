@@ -381,31 +381,59 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 	public List<GridPosition> GetInnerNodes(GridPosition basePosition, int Width, int Length)
 	{
 		List<GridPosition> positions = new List<GridPosition>();
-		int gridWidth = ToGridSize(Width);
-		int gridLength = ToGridSize(Length);
 
-		int widthOffset = gridWidth / 2;
-		int lengthOffset = gridLength / 2;
+		int gridWidth = Width;
+		int gridLength = Length;
 
-		if (Dimension.X - gridWidth < 0) gridWidth = (int)Dimension.X;
-		if (Dimension.Y - gridLength < 0) gridLength = (int)Dimension.Y;
-		for (int i = 1; i < gridWidth - 1; i++)
+		// Clamp the grid size to the grid system dimensions
+		if (Dimension.X - Width < 0) gridWidth = (int)Dimension.X;
+		if (Dimension.Y - Length < 0) gridLength = (int)Dimension.Y;
+
+		if (gridWidth == 1) // Do Vertical
 		{
-			for (int j = 1; j < gridLength - 1; j++)
+			for (int i = 0; i < gridLength; i++)
 			{
-				int x = basePosition.X - widthOffset + i;
-				int z = basePosition.Z - lengthOffset + j;
-				if (x < 0) x = 0;
-				else if (x >= Dimension.X) x = (int)Dimension.X - 1;
-				if (z < 0) z = 0;
-				else if (z >= Dimension.Y) z = (int)Dimension.Y - 1;
-
-				GridPosition pos = new GridPosition(basePosition.X - widthOffset + i, basePosition.Z - lengthOffset + j);
+				int z = ClampDimension(basePosition.Z, i, false);
+				GridPosition pos = new GridPosition(basePosition.X, z);
 				positions.Add(pos);
+			}
+		}
+		else if (gridLength == 1) // Do Horizontal
+		{
+			for (int i = 0; i < gridWidth; i++)
+			{
+				int x = ClampDimension(basePosition.X, i, true);
+				GridPosition pos = new GridPosition(x, basePosition.Z);
+				positions.Add(pos);
+			}
+		}
+		else // Do Both
+		{
+			for (int i = 0; i < gridWidth; i++)
+			{
+				for (int j = 0; j < gridLength; j++)
+				{
+					int x = ClampDimension(basePosition.X, i, true);
+					int z = ClampDimension(basePosition.Z, i, false);
+
+					GridPosition pos = new GridPosition(x, z);
+					positions.Add(pos);
+				}
 			}
 		}
 
 		return positions;
+
+
+		int ClampDimension(int dimension, int i, bool isX)
+		{
+			int x = dimension - i;
+			if (x < 0) x = 0;
+			else if (x >= (isX ? Dimension.X : Dimension.Y)) x = isX ? (int)Dimension.X - 1 : (int)Dimension.Y - 1;
+			return x;
+		}
+
+
 	}
 
 
