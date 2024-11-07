@@ -467,7 +467,81 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 		return new Vector3(offsetX, 0, offsetZ);
 	}
 
+	/// <summary>
+	/// Gets the direction of the vector between two GridPositions.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	public Direction GetDirection(GridPosition a, GridPosition b)
+	{
+		return GetDirection(a.X - b.X, a.Z - b.Z);
+	}
 
+	/// <summary>
+	/// Gets the direction of the vector between two GridPositions.
+	/// </summary>
+	/// <param name="a"></param>
+	/// <param name="b"></param>
+	/// <returns></returns>
+	public int GetMagnitude(GridPosition a, GridPosition b)
+	{
+		return GetMagnitude(a.X - b.X, a.Z - b.Z);
+	}
+
+	/// <summary>
+	/// Gets the direction of the vector.
+	/// <para> Assumes that the argumnents are the result of taking the difference between two GridPositions</para>
+	/// </summary>
+	/// <param name="x">A difference betewen the X component of a GridPosition</param>
+	/// <param name="z">A difference betewen the X component of a GridPosition</param>
+	/// <returns></returns>
+	public Direction GetDirection(int x, int z)
+	{
+		if (x == 0 && z == 0) return Direction.North;
+		if (x >= 1 && z == 0) return Direction.East;
+		if (x == 0 && z <= -1) return Direction.South;
+		if (x <= -1 && z == 0) return Direction.West;
+		if (x >= 1 && z >= 1) return Direction.NorthEast;
+		if (x >= 1 && z <= -1) return Direction.SouthEast;
+		if (x <= -1 && z <= -1) return Direction.SouthWest;
+		if (x <= -1 && z >= 1) return Direction.NorthWest;
+		return Direction.North;
+	}
+
+	/// <summary>
+	/// Gets the magnitude of the vector.
+	/// </summary>
+	/// <para> Assumes that the argumnents are the result of taking the difference between two GridPositions</para>
+	/// <param name="x">A difference betewen the X component of a GridPosition</param>
+	/// <param name="z">A difference betewen the X component of a GridPosition</param>
+	/// <returns></returns>
+	public int GetMagnitude(int x, int z)
+	{
+		int retVal;
+		if (x == 0)
+			retVal = z;
+		else if (z == 0)
+			retVal = x;
+		else
+			retVal = x;
+		return retVal;
+	}
+
+
+
+}
+
+public enum Direction
+{
+	North,
+	East,
+	South,
+	West,
+	NorthEast,
+	SouthEast,
+	SouthWest,
+	NorthWest
 }
 
 /// <summary>
