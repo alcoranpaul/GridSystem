@@ -9,22 +9,24 @@ namespace GridSystem;
 /// </summary>
 public class PathFinding<T> where T : PathNode<T>
 {
-	private readonly GridSystem<T> gridSystem;
+	public GridSystem<T> GridSystem { get; private set; }
 	public delegate void TentativeGCostDelegate(ref int tentativeGCost, T node);
-	public T[,] GridObjects => gridSystem.GridObjects;
+	public T[,] GridObjects => GridSystem.GridObjects;
+
+	public SystemVisual<T> Visual => GridSystem.Visual;
 
 	public PathFinding(Vector2 dimension, float unitScale, Func<GridSystem<T>, GridPosition, T> createGridObject)
 	{
-		gridSystem = new GridSystem<T>(dimension, unitScale, createGridObject);
-		gridSystem.OnObjectOccupancyChanged += OnOccupancyChanged;
+		GridSystem = new GridSystem<T>(dimension, unitScale, createGridObject);
+		GridSystem.OnObjectOccupancyChanged += OnOccupancyChanged;
 
 	}
 
 
 	public PathFinding(int dimension, float unitScale, Func<GridSystem<T>, GridPosition, T> createGridObject)
 	{
-		gridSystem = new GridSystem<T>(new Vector2(dimension), unitScale, createGridObject);
-		gridSystem.OnObjectOccupancyChanged += OnOccupancyChanged;
+		GridSystem = new GridSystem<T>(new Vector2(dimension), unitScale, createGridObject);
+		GridSystem.OnObjectOccupancyChanged += OnOccupancyChanged;
 
 	}
 
@@ -53,8 +55,8 @@ public class PathFinding<T> where T : PathNode<T>
 	public List<GridPosition> GetNeighborhood(GridPosition basePosition, int Width, int Length)
 	{
 		List<GridPosition> positions = new List<GridPosition>();
-		int gridWidth = gridSystem.ToGridSize(Width);
-		int gridLength = gridSystem.ToGridSize(Length);
+		int gridWidth = GridSystem.ToGridSize(Width);
+		int gridLength = GridSystem.ToGridSize(Length);
 
 		int widthOffset = gridWidth / 2;
 		int lengthOffset = gridLength / 2;
@@ -89,7 +91,7 @@ public class PathFinding<T> where T : PathNode<T>
 		for (int i = 0; i < 8; i++)
 		{
 			GridPosition pos = new GridPosition(basePosition.X + dx[i], basePosition.Z + dz[i]);
-			if (gridSystem.IsPositionValid(pos))
+			if (GridSystem.IsPositionValid(pos))
 			{
 				positions.Add(pos);
 			}
@@ -101,7 +103,7 @@ public class PathFinding<T> where T : PathNode<T>
 
 	public BoundingBox GetBoundingBox()
 	{
-		return gridSystem.GetBoundingBox();
+		return GridSystem.GetBoundingBox();
 	}
 
 	public void SpawnDebugObjects(Prefab debugGridPrefab)
@@ -117,8 +119,8 @@ public class PathFinding<T> where T : PathNode<T>
 
 	public T GetNode(GridPosition position)
 	{
-		if (!gridSystem.IsPositionValid(position)) return null;
-		return gridSystem.GetGridObject(position);
+		if (!GridSystem.IsPositionValid(position)) return null;
+		return GridSystem.GetGridObject(position);
 	}
 
 	public List<GridPosition> FindPath(GridPosition start, GridPosition end, out T startNode, out T endNode, TentativeGCostDelegate GCostDelegate = null)
@@ -153,7 +155,7 @@ public class PathFinding<T> where T : PathNode<T>
 
 		openList.Add(startNode);
 
-		if (!gridSystem.GetWorldPosition(endNode.GridPosition, out Vector3 debugEndNodePosition))
+		if (!GridSystem.GetWorldPosition(endNode.GridPosition, out Vector3 debugEndNodePosition))
 		{
 			Debug.Log($"Could not get world position for {endNode.GridPosition}");
 		}
@@ -162,8 +164,8 @@ public class PathFinding<T> where T : PathNode<T>
 		// TODO: Enabled by boolean
 		DebugDraw.DrawSphere(new BoundingSphere(debugEndNodePosition, 15f), Color.Azure, 60f);
 
-		int dimensionX = (int)gridSystem.Dimension.X;
-		int dimensionY = (int)gridSystem.Dimension.Y;
+		int dimensionX = (int)GridSystem.Dimension.X;
+		int dimensionY = (int)GridSystem.Dimension.Y;
 
 		// Initialize path nodes 
 		// WhatIf: Convert into Parallel Processing
@@ -244,7 +246,7 @@ public class PathFinding<T> where T : PathNode<T>
 					GridPosition newPos = new GridPosition(node.GridPosition.X + x, node.GridPosition.Z + z);
 
 					// Skip if the position is outside the grid bounds
-					if (!gridSystem.IsPositionValid(newPos)) continue;
+					if (!GridSystem.IsPositionValid(newPos)) continue;
 
 					// Get the neighbor node
 					T neighborNode = GetNode(newPos);
@@ -273,16 +275,16 @@ public class PathFinding<T> where T : PathNode<T>
 
 		GridPosition position = node.GridPosition;
 
-		if (gridSystem.IsPositionXValid(position.X - 1))
+		if (GridSystem.IsPositionXValid(position.X - 1))
 			neighboringNodes.Add(GetNode(position.X - 1, position.Z)); // Left
 
-		if (gridSystem.IsPositionXValid(position.X + 1))
+		if (GridSystem.IsPositionXValid(position.X + 1))
 			neighboringNodes.Add(GetNode(position.X + 1, position.Z)); // Right
 
-		if (gridSystem.IsPositionZValid(position.Z - 1))
+		if (GridSystem.IsPositionZValid(position.Z - 1))
 			neighboringNodes.Add(GetNode(position.X, position.Z - 1)); // Down
 
-		if (gridSystem.IsPositionZValid(position.Z + 1))
+		if (GridSystem.IsPositionZValid(position.Z + 1))
 			neighboringNodes.Add(GetNode(position.X, position.Z + 1)); // Up
 
 		return neighboringNodes;
@@ -299,16 +301,16 @@ public class PathFinding<T> where T : PathNode<T>
 		List<T> neighboringNodes = new List<T>();
 
 
-		if (gridSystem.IsPositionXValid(position.X - 1))
+		if (GridSystem.IsPositionXValid(position.X - 1))
 			neighboringNodes.Add(GetNode(position.X - 1, position.Z)); // Left
 
-		if (gridSystem.IsPositionXValid(position.X + 1))
+		if (GridSystem.IsPositionXValid(position.X + 1))
 			neighboringNodes.Add(GetNode(position.X + 1, position.Z)); // Right
 
-		if (gridSystem.IsPositionZValid(position.Z - 1))
+		if (GridSystem.IsPositionZValid(position.Z - 1))
 			neighboringNodes.Add(GetNode(position.X, position.Z - 1)); // Down
 
-		if (gridSystem.IsPositionZValid(position.Z + 1))
+		if (GridSystem.IsPositionZValid(position.Z + 1))
 			neighboringNodes.Add(GetNode(position.X, position.Z + 1)); // Up
 
 		return neighboringNodes;
@@ -325,19 +327,19 @@ public class PathFinding<T> where T : PathNode<T>
 		GridPosition position = node.GridPosition;
 
 		// Check North-East
-		if (gridSystem.IsPositionXValid(position.X + 1) && gridSystem.IsPositionZValid(position.Z + 1))
+		if (GridSystem.IsPositionXValid(position.X + 1) && GridSystem.IsPositionZValid(position.Z + 1))
 			neighboringNodes.Add(GetNode(position.X + 1, position.Z + 1));
 
 		// Check North-West
-		if (gridSystem.IsPositionXValid(position.X - 1) && gridSystem.IsPositionZValid(position.Z + 1))
+		if (GridSystem.IsPositionXValid(position.X - 1) && GridSystem.IsPositionZValid(position.Z + 1))
 			neighboringNodes.Add(GetNode(position.X - 1, position.Z + 1));
 
 		// Check South-West
-		if (gridSystem.IsPositionXValid(position.X - 1) && gridSystem.IsPositionZValid(position.Z - 1))
+		if (GridSystem.IsPositionXValid(position.X - 1) && GridSystem.IsPositionZValid(position.Z - 1))
 			neighboringNodes.Add(GetNode(position.X - 1, position.Z - 1));
 
 		// Check South-East
-		if (gridSystem.IsPositionXValid(position.X + 1) && gridSystem.IsPositionZValid(position.Z - 1))
+		if (GridSystem.IsPositionXValid(position.X + 1) && GridSystem.IsPositionZValid(position.Z - 1))
 			neighboringNodes.Add(GetNode(position.X + 1, position.Z - 1));
 
 		return neighboringNodes;
@@ -389,28 +391,28 @@ public class PathFinding<T> where T : PathNode<T>
 
 	private void ToggleNodeWalkable(GridPosition position, bool flag)
 	{
-		if (!gridSystem.IsPositionValid(position)) return;
+		if (!GridSystem.IsPositionValid(position)) return;
 		GetNode(position)?.SetWalkable(flag);
 	}
 
 	public GridPosition GetGridPosition(Vector3 position)
 	{
-		return gridSystem.GetGridPosition(position);
+		return GridSystem.GetGridPosition(position);
 	}
 
 	public bool GetWorldPosition(GridPosition position, out Vector3 worldPosition)
 	{
-		return gridSystem.GetWorldPosition(position, out worldPosition);
+		return GridSystem.GetWorldPosition(position, out worldPosition);
 	}
 
 	public bool GetWorldPosition(Vector3 position, out Vector3 worldPosition)
 	{
-		return gridSystem.GetWorldPosition(position, out worldPosition);
+		return GridSystem.GetWorldPosition(position, out worldPosition);
 	}
 
 	public float GetHalfUnitScale()
 	{
-		return gridSystem.UnitScale / 2;
+		return GridSystem.UnitScale / 2;
 	}
 
 
@@ -419,23 +421,23 @@ public class PathFinding<T> where T : PathNode<T>
 		ToggleNeighborWalkable(e.Object.GridPosition, 1, 1, e.Object.IsOccupied);
 	}
 
-	public int[] GetDirectionX() => gridSystem.DirectionX;
-	public int[] GetDirectionZ() => gridSystem.DirectionY;
+	public int[] GetDirectionX() => GridSystem.DirectionX;
+	public int[] GetDirectionZ() => GridSystem.DirectionY;
 	public void OnDisable()
 	{
-		gridSystem.OnObjectOccupancyChanged -= OnOccupancyChanged;
-		gridSystem.OnDisable();
+		GridSystem.OnObjectOccupancyChanged -= OnOccupancyChanged;
+		GridSystem.OnDisable();
 	}
 
-	public void CreateDebugObjects(Prefab prefab, float yOffset = 0) => gridSystem.Visual.CreateDebugObjects(prefab, yOffset);
-	public void VisualizeGrid(Prefab prefab) => gridSystem.Visual.VisualizeGrid(prefab);
-	public void ChangeGridObjectOccupancy(GridPosition position, bool flag) => gridSystem.ChangeGridObjectOccupancy(position, flag);
-	public T GetGridObject(GridPosition position) => gridSystem.GetGridObject(position);
-	public List<GridPosition> GetOuterNodes(GridPosition gridPosition, int wdith, int length) => gridSystem.GetOuterNodes(gridPosition, wdith, length);
-	public List<GridPosition> GetInnerNodes(GridPosition gridPosition, int wdith, int length) => gridSystem.GetInnerNodes(gridPosition, wdith, length);
+	public void CreateDebugObjects(Prefab prefab, float yOffset = 0) => GridSystem.Visual.CreateDebugObjects(prefab, yOffset);
+	public void VisualizeGrid(Prefab prefab) => GridSystem.Visual.VisualizeGrid(prefab);
+	public void ChangeGridObjectOccupancy(GridPosition position, bool flag) => GridSystem.ChangeGridObjectOccupancy(position, flag);
+	public T GetGridObject(GridPosition position) => GridSystem.GetGridObject(position);
+	public List<GridPosition> GetOuterNodes(GridPosition gridPosition, int wdith, int length) => GridSystem.GetOuterNodes(gridPosition, wdith, length);
+	public List<GridPosition> GetInnerNodes(GridPosition gridPosition, int wdith, int length) => GridSystem.GetInnerNodes(gridPosition, wdith, length);
 
-	public void ShowVisual() => gridSystem.Visual.ShowVisuals();
-	public void HideVisual() => gridSystem.Visual.HideVisuals();
+	public void ShowVisual() => GridSystem.Visual.ShowVisuals();
+	public void HideVisual() => GridSystem.Visual.HideVisuals();
 
 
 }
