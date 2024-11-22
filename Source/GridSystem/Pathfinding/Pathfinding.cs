@@ -10,7 +10,13 @@ namespace GridSystem;
 public class PathFinding<T> where T : PathNode<T>
 {
 	public GridSystem<T> GridSystem { get; private set; }
-	public delegate void TentativeGCostDelegate(ref int tentativeGCost, T node);
+
+	/// <summary>
+	/// Delegate for calculating the tentative G cost of a node.
+	/// </summary>
+	/// <param name="tentativeGCost">Index (0): Neighrbor - Index(1): Current Node - Index(2): EndNode</param>
+	/// <param name="nodes"></param>
+	public delegate void TentativeGCostDelegate(ref int tentativeGCost, params T[] nodes);
 	public T[,] GridObjects => GridSystem.GridObjects;
 
 	public SystemVisual<T> Visual => GridSystem.Visual;
@@ -123,6 +129,15 @@ public class PathFinding<T> where T : PathNode<T>
 		return GridSystem.GetGridObject(position);
 	}
 
+	/// <summary>
+	/// Finds a path between two grid positions using the A* algorithm.
+	/// </summary>
+	/// <param name="start"></param>
+	/// <param name="end"></param>
+	/// <param name="startNode"></param>
+	/// <param name="endNode"></param>
+	/// <param name="GCostDelegate">Index (0): Neighrbor - Index(1): Current Node - Index(2): EndNode</param>
+	/// <returns></returns>
 	public List<GridPosition> FindPath(GridPosition start, GridPosition end, out T startNode, out T endNode, TentativeGCostDelegate GCostDelegate = null)
 	{
 		List<T> openList = new List<T>(); // Nodes to be evaluated
@@ -191,12 +206,16 @@ public class PathFinding<T> where T : PathNode<T>
 			// If the current node is the end node, return the path
 			if (currentNode == endNode)
 			{
+
 				return CalculatePath(endNode);
 			}
+
+
 			openList.Remove(currentNode);
 			closedList.Add(currentNode);
 
-			foreach (T neighbor in GetCardinalNodes(currentNode))
+
+			foreach (T neighbor in GetCardinalNodes(currentNode)) // Cardinal Nodes for eliminating diagonal movement
 			{
 				if (closedList.Contains(neighbor)) continue;
 
@@ -210,7 +229,7 @@ public class PathFinding<T> where T : PathNode<T>
 				// WhatIf: Convert this into a delegate
 				int tentativeGCost = currentNode.GCost + CalculateDistance(currentNode.GridPosition, neighbor.GridPosition);
 
-				GCostDelegate?.Invoke(ref tentativeGCost, neighbor);
+				GCostDelegate?.Invoke(ref tentativeGCost, neighbor, currentNode, endNode);
 
 
 				if (tentativeGCost < neighbor.GCost)  // If the new path is shorter
@@ -225,12 +244,24 @@ public class PathFinding<T> where T : PathNode<T>
 				}
 			}
 
+
+
 		}
 
 		// No path found
 		Debug.Log("No path found");
 		return null;
 	}
+
+	public void ClearNode(T node)
+	{
+		node.SetGCost(int.MaxValue);
+		node.SetHCost(0);
+		node.SetPreviousNode(null);
+	}
+
+
+
 
 	private T FindNearestWalkableNode(T node, int searchRadius = 10)
 	{
