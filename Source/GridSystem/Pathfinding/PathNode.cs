@@ -77,6 +77,6 @@ public class PathNode<T> : GridObject<T>, IPathNode where T : PathNode<T>
 
 	public override string ToString()
 	{
-		return GridPosition.ToString();
+		return $"Node {GridPosition} - Previous: {PreviousNode?.GridPosition}";
 	}
 }

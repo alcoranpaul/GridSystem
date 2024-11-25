@@ -258,6 +258,7 @@ public class PathFinding<T> where T : PathNode<T>
 		node.SetGCost(int.MaxValue);
 		node.SetHCost(0);
 		node.SetPreviousNode(null);
+		node.SetWalkable(true);
 	}
 
 
@@ -420,7 +421,7 @@ public class PathFinding<T> where T : PathNode<T>
 		return xDistance + zDistance;
 	}
 
-	private void ToggleNodeWalkable(GridPosition position, bool flag)
+	public void ToggleNodeWalkable(GridPosition position, bool flag)
 	{
 		if (!GridSystem.IsPositionValid(position)) return;
 		GetNode(position)?.SetWalkable(flag);
