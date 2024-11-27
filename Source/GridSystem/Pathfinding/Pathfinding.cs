@@ -177,7 +177,7 @@ public class PathFinding<T> where T : PathNode<T>
 		debugEndNodePosition.Y += 100f;
 
 		// TODO: Enabled by boolean
-		DebugDraw.DrawSphere(new BoundingSphere(debugEndNodePosition, 15f), Color.Azure, 60f);
+		// DebugDraw.DrawSphere(new BoundingSphere(debugEndNodePosition, 15f), Color.Azure, 60f);
 
 		int dimensionX = (int)GridSystem.Dimension.X;
 		int dimensionY = (int)GridSystem.Dimension.Y;
