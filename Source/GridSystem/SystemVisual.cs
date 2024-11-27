@@ -165,6 +165,7 @@ public class SystemVisual<TGridObject> where TGridObject : GridObject<TGridObjec
 					Debug.LogError("Failed to get world position");
 				}
 				Actor actor = PrefabManager.SpawnPrefab(visualizePrefab, worldPos);
+				actor.Name = $"Visual_{gridobject.GridPosition}";
 				actor.Parent = gridVisualizations;
 				visualDict[gridobject.GridPosition] = actor; // Store the visual actor in the dictionary
 				actor.IsActive = false;
