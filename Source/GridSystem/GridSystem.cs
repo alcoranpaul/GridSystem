@@ -610,9 +610,25 @@ public class GridPosition
 		return new Vector3(X, 0, Z);
 	}
 
-	// <inheritdoc/>
+	/// <inheritdoc/>
 	public override string ToString()
 	{
 		return $"({X}, {Z})";
+	}
+
+	/// <inheritdoc/>
+	public override bool Equals(object obj)
+	{
+		if (obj is GridPosition other)
+		{
+			return X == other.X && Z == other.Z;
+		}
+		return false;
+	}
+
+	/// <inheritdoc/>
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(X, Z);
 	}
 }
