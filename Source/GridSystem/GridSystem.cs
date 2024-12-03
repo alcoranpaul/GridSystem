@@ -534,14 +534,14 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 
 public enum Direction
 {
-	North,
-	East,
-	South,
-	West,
-	NorthEast,
-	SouthEast,
-	SouthWest,
-	NorthWest
+	North = 0,
+	East = 1,
+	South = 2,
+	West = 3,
+	NorthEast = 4,
+	SouthEast = 5,
+	SouthWest = 6,
+	NorthWest = 7
 }
 
 /// <summary>
