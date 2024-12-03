@@ -518,14 +518,7 @@ public class GridSystem<TGridObject> where TGridObject : GridObject<TGridObject>
 	/// <returns></returns>
 	public int GetMagnitude(int x, int z)
 	{
-		int retVal;
-		if (x == 0)
-			retVal = z;
-		else if (z == 0)
-			retVal = x;
-		else
-			retVal = x;
-		return retVal;
+		return Mathf.Abs(x) + Mathf.Abs(z); // Sum of absolute differences
 	}
 
 
